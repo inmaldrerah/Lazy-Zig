@@ -123,12 +123,12 @@ pub fn iterator(comptime BaseType: type, comptime ItType: type) type {
             }
         }
 
-        pub fn average(_: *Self, comptime func: fn (BaseType, BaseType) BaseType) ?BaseType {
-            return performTransform(func, true);
+        pub fn average(self: *Self, comptime func: fn (BaseType, BaseType) BaseType) ?BaseType {
+            return self.performTransform(func, true);
         }
 
-        pub fn aggregate(_: *Self, comptime func: fn (BaseType, BaseType) BaseType) ?BaseType {
-            return performTransform(func, false);
+        pub fn aggregate(self: *Self, comptime func: fn (BaseType, BaseType) BaseType) ?BaseType {
+            return self.performTransform(func, false);
         }
 
         // Select many currently only supports arrays

@@ -9,7 +9,7 @@ pub fn iterator(comptime BaseType: type) type {
 
         pub fn init(start: BaseType, end: BaseType, step: BaseType) Self {
             return Self{
-                .state = 0,
+                .state = start,
                 .start = start,
                 .end = end,
                 .step = step,
@@ -17,7 +17,10 @@ pub fn iterator(comptime BaseType: type) type {
         }
 
         pub fn count(self: *Self) usize {
-            return (self.end - self.start - 1) / 2;
+            return switch (@typeInfo(BaseType)) {
+                .Int => |_| @intCast(@divTrunc((self.end - self.start), self.step)),
+                .Float => |_| @intFromFloat((self.end - self.start) / self.step),
+            };
         }
 
         pub fn reset(self: *Self) void {
