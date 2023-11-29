@@ -11,6 +11,10 @@ pub fn range(start: anytype, stop: @TypeOf(start), step: @TypeOf(start)) iterato
     return iterator(@TypeOf(start), enumerateIt(@TypeOf(start))){ .nextIt = enumerateIt(@TypeOf(start)).init(start, stop, step) };
 }
 
+pub fn extend(iter: anytype) iterator(@TypeOf(iter.next().?), @TypeOf(iter)) {
+    return iterator(@TypeOf(iter.next().?), @TypeOf(iter)){ .nextIt = iter };
+}
+
 test {
     std.testing.refAllDecls(@This());
 }
