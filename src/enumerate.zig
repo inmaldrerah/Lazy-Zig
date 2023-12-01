@@ -20,7 +20,7 @@ pub fn iterator(comptime BaseType: type) type {
             return switch (@typeInfo(BaseType)) {
                 .Int => |_| @intCast(@divTrunc((self.end - self.start), self.step)),
                 .Float => |_| @intFromFloat((self.end - self.start) / self.step),
-                _ => @compileError("only numerical types are supported"),
+                else => @compileError("only numerical types are supported"),
             };
         }
 

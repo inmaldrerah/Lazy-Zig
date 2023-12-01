@@ -1,7 +1,9 @@
-pub fn iterator(comptime BaseType: type, comptime ItType: type) type {
+pub fn iterator(comptime ItType1: type, comptime ItType2: type) type {
+    const BaseType = @TypeOf(ItType1.next(undefined).?);
+    if (@TypeOf(ItType2.next(undefined).?) != BaseType) @compileError("two iterators have different base types");
     return struct {
-        nextIt: *ItType,
-        otherIt: *ItType,
+        nextIt: *ItType1,
+        otherIt: ItType2,
 
         const Self = @This();
 
@@ -20,6 +22,7 @@ pub fn iterator(comptime BaseType: type, comptime ItType: type) type {
 
         pub fn reset(self: *Self) void {
             self.nextIt.reset();
+            self.otherIt.reset();
         }
     };
 }

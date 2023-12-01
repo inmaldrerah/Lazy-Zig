@@ -1,4 +1,5 @@
-pub fn iterator(comptime BaseType: type, comptime NewType: type, comptime ItType: type) type {
+pub fn iterator(comptime NewType: type, comptime ItType: type) type {
+    const BaseType = @TypeOf(ItType.next(undefined).?);
     return struct {
         nextIt: *ItType,
 
@@ -10,10 +11,19 @@ pub fn iterator(comptime BaseType: type, comptime NewType: type, comptime ItType
 
         pub fn next(self: *Self) ?NewType {
             if (self.nextIt.next()) |nxt| {
-                switch (@typeInfo(BaseType)) {
-                    .Int => return @intCast(nxt),
-                    else => return NewType(nxt),
-                }
+                return switch (@typeInfo(BaseType)) {
+                    .Int => switch (@typeInfo(NewType)) {
+                        .Int => @intCast(nxt),
+                        .Float => @floatFromInt(nxt),
+                        else => @compileError("unsupported conversion"),
+                    },
+                    .Float => switch (@typeInfo(NewType)) {
+                        .Int => @intFromFloat(nxt),
+                        .Float => @floatCast(nxt),
+                        else => @compileError("unsupported conversion"),
+                    },
+                    else => @compileError("unsupported conversion"),
+                };
             }
             return null;
         }

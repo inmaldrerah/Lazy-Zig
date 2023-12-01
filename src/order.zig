@@ -1,6 +1,8 @@
 const std = @import("std");
 
-pub fn iterator(comptime BaseType: type, comptime NewType: type, comptime ItType: type, comptime ascending: bool, comptime select: fn (BaseType) NewType) type {
+pub fn iterator(comptime ItType: type, comptime ascending: bool, comptime select: anytype) type {
+    const BaseType = @TypeOf(ItType.next(undefined).?);
+    const NewType = @TypeOf(select(@as(BaseType, undefined)));
     return struct {
         const Self = @This();
         nextIt: *ItType,

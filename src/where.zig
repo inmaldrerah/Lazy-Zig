@@ -1,4 +1,5 @@
-pub fn iterator(comptime BaseType: type, comptime ItType: type, comptime filter: fn (BaseType) bool) type {
+pub fn iterator(comptime ItType: type, comptime filter: fn (@TypeOf(ItType.next(undefined).?)) bool) type {
+    const BaseType = @TypeOf(ItType.next(undefined).?);
     return struct {
         nextIt: *ItType,
 

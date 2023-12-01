@@ -16,7 +16,7 @@ pub fn getType(comptime objType: type) type {
                         },
                     }
                 };
-                return iterator(BaseType, arrayIt(BaseType));
+                return iterator(arrayIt(BaseType));
             },
             .Struct => {
                 if (!hasIteratorMember(objType)) {

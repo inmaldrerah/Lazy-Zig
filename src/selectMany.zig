@@ -1,6 +1,10 @@
 const arrayIt = @import("arrayIterator.zig").iterator;
 
-pub fn iterator(comptime BaseType: type, comptime NewType: type, comptime ItType: type, comptime select: fn (BaseType) []const NewType) type {
+pub fn iterator(comptime ItType: type, comptime select: anytype) type {
+    const BaseType = @TypeOf(ItType.next(undefined).?);
+    const infoNewSliceType = @typeInfo(@TypeOf(select(@as(BaseType, undefined))));
+    if (infoNewSliceType.Pointer.size != .Slice or !infoNewSliceType.Pointer.is_const) @compileError("`select` should return a const slice of values of the new type");
+    const NewType = infoNewSliceType.Pointer.child;
     return struct {
         nextIt: *ItType,
         currentIt: ?arrayIt(NewType),

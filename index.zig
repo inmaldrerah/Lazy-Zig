@@ -7,12 +7,12 @@ pub fn init(obj: anytype) info.getType(@TypeOf(obj)) {
     return info.initType(@TypeOf(obj), obj);
 }
 
-pub fn range(start: anytype, stop: @TypeOf(start), step: @TypeOf(start)) iterator(@TypeOf(start), enumerateIt(@TypeOf(start))) {
-    return iterator(@TypeOf(start), enumerateIt(@TypeOf(start))){ .nextIt = enumerateIt(@TypeOf(start)).init(start, stop, step) };
+pub fn range(start: anytype, stop: @TypeOf(start), step: @TypeOf(start)) iterator(enumerateIt(@TypeOf(start))) {
+    return iterator(enumerateIt(@TypeOf(start))){ .nextIt = enumerateIt(@TypeOf(start)).init(start, stop, step) };
 }
 
-pub fn extend(iter: anytype) iterator(@TypeOf(iter.next().?), @TypeOf(iter)) {
-    return iterator(@TypeOf(iter.next().?), @TypeOf(iter)){ .nextIt = iter };
+pub fn extend(iter: anytype) iterator(@TypeOf(iter)) {
+    return iterator(@TypeOf(iter)){ .nextIt = iter };
 }
 
 test {
@@ -44,7 +44,7 @@ test "Basic Lazy" {
     var stringBuf: [3]u8 = undefined;
     const stringSlice = blk: {
         var a = init(obj[0..]);
-        var b = a.select(u8, toDigitChar);
+        var b = a.select(toDigitChar);
         break :blk b.toArray(stringBuf[0..]);
     };
     try std.testing.expect(std.mem.eql(u8, stringSlice, stringResult));
@@ -54,7 +54,7 @@ test "Basic Lazy" {
 test "Readme-Tests" {
     var it = range(@as(i32, 0), 100, 1);
     var whereIt = it.where(even);
-    var selectIt = whereIt.select(i32, pow);
+    var selectIt = whereIt.select(pow);
 
     var outBuf: [100]i32 = undefined;
     _ = blk: {
@@ -96,7 +96,7 @@ test "Basic Concat" {
     var it = blk: {
         var a = init(obj1[0..]);
         var b = init(obj2[0..]);
-        break :blk a.concat(&b);
+        break :blk a.concat(b);
     };
     while (it.next()) |next| {
         try std.testing.expect(next == i);
@@ -121,7 +121,7 @@ test "Select Many" {
     var i: i32 = 0;
     var it = blk: {
         var a = init(obj[0..]);
-        break :blk a.selectMany(i32, selectManyTest);
+        break :blk a.selectMany(selectManyTest);
     };
     while (it.next()) |next| {
         try std.testing.expect(i == next);
@@ -147,7 +147,7 @@ test "Sorting" {
     var result = [_]i32{ 1, 4, 9, 23, 54 };
     const it = blk: {
         var a = init(obj[0..]);
-        var b = a.orderByAscending(i32, orderBySimple, buf[0..]);
+        var b = a.orderByAscending(orderBySimple, buf[0..]);
         break :blk b.toArray(buf[25..]);
     };
     try std.testing.expect(std.mem.eql(i32, it, result[0..]));
