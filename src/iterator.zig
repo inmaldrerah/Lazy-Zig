@@ -209,8 +209,6 @@ pub fn iterator(comptime BaseType: type, comptime ItType: type) type {
         }
 
         pub fn toArray(self: *Self, buffer: []BaseType) []BaseType {
-            self.reset();
-            defer self.reset();
             var c: usize = 0;
             while (self.next()) |nxt| {
                 buffer[c] = nxt;
@@ -220,13 +218,19 @@ pub fn iterator(comptime BaseType: type, comptime ItType: type) type {
         }
 
         pub fn toList(self: *Self, allocator: *std.mem.Allocator) std.ArrayList(BaseType) {
-            self.reset();
-            defer self.reset();
             var list = std.ArrayList(BaseType).init(allocator);
             while (self.next()) |nxt| {
                 list.append(nxt);
             }
             return list;
+        }
+
+        pub fn fold(self: *Self, initial: anytype, composeFn: *const fn (@TypeOf(initial), BaseType) @TypeOf(initial)) @TypeOf(initial) {
+            var container = initial;
+            while (self.next()) |nxt| {
+                composeFn(container, nxt);
+            }
+            return container;
         }
     };
 }
